@@ -31,7 +31,7 @@ export default class App extends Component<{}> {
   }
 
   componentDidMount(){
-    
+    this.getLocations()
   }
 
   componentWillMount(){
