@@ -17,7 +17,8 @@ import {getPlace} from './src/utils/api'
 
 import {Overlay, Button} from 'react-native-elements'
 import { NativeRouter, Route} from 'react-router-native'
-
+//import firebase from './src/utils/firebase'
+import firebase from 'react-native-firebase';
 
 
 const LocationAndSensorModule = NativeModules.LocationAndSensorModule
@@ -80,6 +81,7 @@ export default class App extends Component<{}> {
 
     DeviceEventEmitter.addListener('pushLocation', (data)=> {
       console.log('location', data)
+
   
       this.state.location1 === null
       ?this.setState({location1: data})
@@ -212,6 +214,12 @@ export default class App extends Component<{}> {
         type: data.data.results[0].types
       }
       console.log('data to be saved', dataTobeSaved)
+
+      const ref = firebase.database().ref('');
+      const locationId = ref.child('locations').push().key
+      console.log('locationId', locationId)
+      const locationPromise = ref.child(`locations/${locationId}`).set({dataTobeSaved})
+      
     })
     .catch((err)=> console.log('error', err))
     //save that location

@@ -10,6 +10,9 @@ import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
 import com.oblador.vectoricons.VectorIconsPackage;
 
+import io.invertase.firebase.RNFirebasePackage;
+import io.invertase.firebase.database.RNFirebaseDatabasePackage;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,7 +30,9 @@ public class MainApplication extends Application implements ReactApplication {
           new MainReactPackage(),
               new MapsPackage(),
               new LocationAndSensorPackage(),
-              new VectorIconsPackage()
+              new VectorIconsPackage(),
+              new RNFirebasePackage(),
+              new RNFirebaseDatabasePackage()
       );
     }
 
