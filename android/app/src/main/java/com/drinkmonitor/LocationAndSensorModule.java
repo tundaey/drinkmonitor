@@ -239,12 +239,12 @@ public class LocationAndSensorModule extends ReactContextBaseJavaModule implemen
   @ReactMethod
   private void stopSamplingLocation(){
     stopLocationUpdates();
-    /*locationManager.removeUpdates(locationListener);
+    locationManager.removeUpdates(locationListener);
     Intent intent = new Intent(getReactApplicationContext(), ActivityRecognizedService.class );
     PendingIntent pendingIntent = PendingIntent.getService( getReactApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT );
 
     ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mApiClient, pendingIntent);
-    Toast.makeText(getReactApplicationContext(), "Removed Activity Updates", Toast.LENGTH_LONG).show();*/
+    Toast.makeText(getReactApplicationContext(), "Removed Activity Updates", Toast.LENGTH_LONG).show();
   }
 
   @ReactMethod
@@ -314,19 +314,8 @@ public class LocationAndSensorModule extends ReactContextBaseJavaModule implemen
 
   @ReactMethod
   private void getLocation(){
-    Log.e("getLocation"," Requesting Location");
-    startLocationUpdates();
-    Log.e("getLocation"," Location Requested");
-    /*Log.e("getLocation"," Requesting Location");
-    try{
-      locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 120000, 0, locationListener);
-    }catch (java.lang.SecurityException ex) {
-      Log.i("getLocation", "fail to request location update, ignore", ex);
-    } catch (IllegalArgumentException ex) {
-      Log.d("getLocation", "network provider does not exist, " + ex.getMessage());
-    }*/
 
-    /*Log.e( "getLocation", "Reached Gotten Permission: "  );
+    Log.e( "getLocation", "Reached Gotten Permission: "  );
     if ( ContextCompat.checkSelfPermission( getReactApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ) {
       Log.e( "getLocation", "Request Permission "  );
       ActivityCompat.requestPermissions( getReactApplicationContext().getCurrentActivity(), new String[] {
@@ -334,7 +323,7 @@ public class LocationAndSensorModule extends ReactContextBaseJavaModule implemen
       Log.e( "getLocation", "Permission Requested"  );
     }
     Log.e( "getLocation", "Permission Granted"  );
-    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 120000, 0, locationListener);*/
+    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60000, 0, locationListener);
   }
 
 

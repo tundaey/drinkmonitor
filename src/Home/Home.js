@@ -2,6 +2,8 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import MapView from 'react-native-maps';
 
+import {Overlay} from 'react-native-elements'
+
 const axios = require('axios')
 
 const Home = (props)=> {
@@ -22,6 +24,7 @@ const Home = (props)=> {
                 const longitude = parseFloat(location.longitude)
                 return (
                     <MapView.Marker
+                        key={location.id}
                         title="Greenwich"
                         onPress={e => props.displayMarkerInfo(e)}
                         coordinate={{
