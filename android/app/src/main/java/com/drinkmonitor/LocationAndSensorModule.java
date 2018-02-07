@@ -73,14 +73,6 @@ public class LocationAndSensorModule extends ReactContextBaseJavaModule implemen
 
   public boolean mLocationPermissionGranted;
 
-  /*private final ActivityEventListener mActivityEventListener = new BaseActivityEventListener() {
-
-    @Override
-    public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent intent) {
-      Log.e( "getLocation", "Permission Requested " + intent.getData()  );
-      mPickerPromise.resolve(requestCode);
-    }
-  };*/
 
   @Override
   public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {
@@ -111,6 +103,8 @@ public class LocationAndSensorModule extends ReactContextBaseJavaModule implemen
     reactContext.addActivityEventListener(this);
 
     reactContext.addLifecycleEventListener(this);
+
+
 
     this.mLocalBroadcastReceiver = new LocalBroadcastReceiver();
     LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(reactContext);
@@ -154,6 +148,7 @@ public class LocationAndSensorModule extends ReactContextBaseJavaModule implemen
     //ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates( mApiClient, 120000, pendingIntent );
 
   }
+
 
   @Override
   public void onConnectionSuspended(int i) {
@@ -218,6 +213,14 @@ public class LocationAndSensorModule extends ReactContextBaseJavaModule implemen
     public void onProviderDisabled(String provider) {}
   };
 
+  @ReactMethod
+  private void startReceiver(){
+    IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+    filter.addAction(Intent.ACTION_SCREEN_OFF);
+    BroadcastReceiver networkReceiver = new NetworkChangeReceiver();
+    getCurrentActivity().registerReceiver(networkReceiver, filter);
+  }
+
 
   @ReactMethod
   private void getDistanceBetweenLocations(
@@ -238,8 +241,8 @@ public class LocationAndSensorModule extends ReactContextBaseJavaModule implemen
 
   @ReactMethod
   private void stopSamplingLocation(){
-    stopLocationUpdates();
-    locationManager.removeUpdates(locationListener);
+    //stopLocationUpdates();
+    //locationManager.removeUpdates(locationListener);
     Intent intent = new Intent(getReactApplicationContext(), ActivityRecognizedService.class );
     PendingIntent pendingIntent = PendingIntent.getService( getReactApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT );
 
@@ -267,15 +270,8 @@ public class LocationAndSensorModule extends ReactContextBaseJavaModule implemen
 
   private void createLocationRequest() {
     mLocationRequest = new LocationRequest();
-
-    // Sets the desired interval for active location updates. This interval is
-    // inexact. You may not receive updates at all if no location sources are available, or
-    // you may receive them slower than requested. You may also receive updates faster than
-    // requested if other applications are requesting location at a faster interval.
     mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
 
-    // Sets the fastest rate for active location updates. This interval is exact, and your
-    // application will never receive updates faster than this value.
     mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
 
     mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -325,8 +321,6 @@ public class LocationAndSensorModule extends ReactContextBaseJavaModule implemen
     Log.e( "getLocation", "Permission Granted"  );
     locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60000, 0, locationListener);
   }
-
-
 
 
 

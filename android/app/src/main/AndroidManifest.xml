@@ -40,6 +40,9 @@
 
 
         <service android:name=".ActivityRecognizedService" />
+        <service android:name=".GeolocationService" />
+        <service android:name=".TaskService" />
+
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

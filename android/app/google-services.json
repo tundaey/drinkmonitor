@@ -1,0 +1,63 @@
+{
+  "project_info": {
+    "project_number": "548442397675",
+    "firebase_url": "https://drinkmonitor-3315f.firebaseio.com",
+    "project_id": "drinkmonitor-3315f",
+    "storage_bucket": "drinkmonitor-3315f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:548442397675:android:aaab1365e2b75bc1",
+        "android_client_info": {
+          "package_name": "com.drinkmonitor"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "548442397675-vnd472slcbpokkca5mkv284sgqf9e97v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.drinkmonitor",
+            "certificate_hash": "f391a82ee585560d974e5fa400007b4a8fcdb85e"
+          }
+        },
+        {
+          "client_id": "548442397675-8r9oq5s6qamml3gqc8s0pva6ftrq1s6b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.drinkmonitor",
+            "certificate_hash": "c3e95a7bda0bad331a511744f50830d87df7dd85"
+          }
+        },
+        {
+          "client_id": "548442397675-nrelo41bs1el4fc3o5hq79mk1c3c2os8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmIPEUCCleronrNYAV6TASWwExTCX-y2M"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "548442397675-nrelo41bs1el4fc3o5hq79mk1c3c2os8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

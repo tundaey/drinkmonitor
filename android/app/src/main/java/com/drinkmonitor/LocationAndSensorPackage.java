@@ -22,6 +22,7 @@ public class LocationAndSensorPackage implements ReactPackage {
     List<NativeModule> modules = new ArrayList<>();
 
     modules.add(new LocationAndSensorModule(reactContext));
+    modules.add(new GeolocationModule(reactContext));
 
     return modules;
   }

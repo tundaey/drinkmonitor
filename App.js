@@ -20,8 +20,9 @@ import { NativeRouter, Route} from 'react-router-native'
 //import firebase from './src/utils/firebase'
 import firebase from 'react-native-firebase';
 
-
+console.log('native modules', NativeModules)
 const LocationAndSensorModule = NativeModules.LocationAndSensorModule
+const Geolocation = NativeModules.GeoLocation
 
 export default class App extends Component<{}> {
   constructor(){
@@ -53,14 +54,17 @@ export default class App extends Component<{}> {
 
   componentWillMount(){
     this.requestLocationPermission()
+    LocationAndSensorModule.startReceiver()
+    
     //LocationAndSensorModule.getPermission()
     //set moving state to either Static
     DeviceEventEmitter.addListener('onTrigger', (event)=> {
         console.log('event', event)
-        LocationAndSensorModule.getLocation()
-        //once user starts moving
-        //get the state of the user
-        //get the time spent at that location -(subtract time.now from saved timestamp)
+        //LocationAndSensorModule.getLocation()
+        Geolocation.startService()
+        .then((data)=> console.log('location started', data))
+        .catch((err)=> console.log('location starting error', err))
+        
         console.log('iscurrentlocation', this.state.isCurrentLocation)
         if(this.state.isCurrentLocation){
           const userState = this.state.state
@@ -72,20 +76,20 @@ export default class App extends Component<{}> {
           
           console.log('timespent', timespent)
           this.getPlaceAndSaveLocation(timespent, this.state.currentLocation)
-          
+          LocationAndSensorModule.show('Location Saved', LocationAndSensorModule.SHORT)
           //if(userState === 'Still' && timespent > 500) this.getPlaceAndSaveLocation(timespent, this.state.currentLocation)
           
         }
         
     })
 
-    DeviceEventEmitter.addListener('pushLocation', (data)=> {
+    DeviceEventEmitter.addListener('updateLocation', (data)=> {
       console.log('location', data)
 
   
       this.state.location1 === null
-      ?this.setState({location1: data})
-      : this.setState({location2: data})
+      ?this.setState({location1: data.coords})
+      : this.setState({location2: data.coords})
 
       if((this.state.location1 !== null) && (this.state.location2 !== null) ){
 
@@ -99,12 +103,11 @@ export default class App extends Component<{}> {
               if(this.state.state === "Still" || this.state.state === "Unknown"){
 
                 LocationAndSensorModule.stopSamplingLocation();
-                console.log('sampling stopped');
-                LocationAndSensorModule.show('Not Moving Short Distance', LocationAndSensorModule.SHORT)
-                // get the current location which might be location2
-                // store the currentlocation with timestamp
+                Geolocation.stopService().then((data)=> console.log('Stop sampling location'))
                 this.updateCurrentLocation(this.state.location2)
-
+                this.setState({location1: null});
+                this.setState({location2: null});
+                LocationAndSensorModule.show('Stop sampling location', LocationAndSensorModule.SHORT)
                 
               }else{
                 LocationAndSensorModule.show('User Moving Short Distance', LocationAndSensorModule.SHORT)
@@ -188,8 +191,17 @@ export default class App extends Component<{}> {
   }
 
   getLocations(){
-    axios.get('http://165.227.103.10:3000/api/v1/locations')
-    .then(({data})=> this.setState({locations: data.data}))
+    const ref = firebase.database().ref('locations')
+    ref.once('value', (snapshot)=> {
+      console.log('snapshot', snapshot.val())
+      const data = snapshot.val()
+      const keys = Object.keys(data)
+      const returnedData = keys.map((key)=> data[key])
+      console.log('returned data', returnedData)
+      this.setState({locations: returnedData})
+    })
+    // axios.get('http://165.227.103.10:3000/api/v1/locations')
+    // .then(({data})=> this.setState({locations: data.data}))
   }
 
   saveLocation(location){
@@ -218,7 +230,7 @@ export default class App extends Component<{}> {
       const ref = firebase.database().ref('');
       const locationId = ref.child('locations').push().key
       console.log('locationId', locationId)
-      const locationPromise = ref.child(`locations/${locationId}`).set({dataTobeSaved})
+      const locationPromise = ref.child(`locations/${locationId}`).set(dataTobeSaved)
       
     })
     .catch((err)=> console.log('error', err))
