@@ -9,6 +9,8 @@ import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
 import com.oblador.vectoricons.VectorIconsPackage;
+import com.ocetnik.timer.BackgroundTimerPackage;
+import com.wix.reactnativenotifications.RNNotificationsPackage;
 
 import io.invertase.firebase.RNFirebasePackage;
 import io.invertase.firebase.database.RNFirebaseDatabasePackage;
@@ -32,7 +34,9 @@ public class MainApplication extends Application implements ReactApplication {
               new LocationAndSensorPackage(),
               new VectorIconsPackage(),
               new RNFirebasePackage(),
-              new RNFirebaseDatabasePackage()
+              new RNFirebaseDatabasePackage(),
+              new BackgroundTimerPackage(),
+              new RNNotificationsPackage(MainApplication.this)
       );
     }
 

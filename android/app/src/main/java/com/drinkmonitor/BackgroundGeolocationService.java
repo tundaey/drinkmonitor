@@ -25,10 +25,12 @@ public class BackgroundGeolocationService extends Service {
     private static int GEOLOCATION_NOTIFICATION_ID = 12345689;
     LocationManager locationManager = null;
 
+
     LocationListener locationListener = new LocationListener() {
 
         @Override
         public void onLocationChanged(Location location) {
+            Log.e( "B/Geolocation", "Location changed" + location );
             BackgroundGeolocationService.this.sendMessage(location);
         }
 
@@ -55,7 +57,7 @@ public class BackgroundGeolocationService extends Service {
                 android.Manifest.permission.ACCESS_FINE_LOCATION);
         if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
             //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60000, 100, locationListener);
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60000, 0, locationListener);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 0, locationListener);
             Log.e( "Geolocation", "request location updates");
         }
     }
@@ -75,6 +77,14 @@ public class BackgroundGeolocationService extends Service {
     public void onDestroy() {
         locationManager.removeUpdates(locationListener);
         super.onDestroy();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId)
+    {
+        Log.e(TAG, "onStartCommand");
+        super.onStartCommand(intent, flags, startId);
+        return START_STICKY;
     }
 
 //    @Override

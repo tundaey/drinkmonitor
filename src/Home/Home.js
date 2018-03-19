@@ -19,12 +19,12 @@ const Home = (props)=> {
 
           {props.locations.length === 0 
             ? console.log('no locations') 
-            :  props.locations.map((location)=> {
+            :  props.locations.map((location, key)=> {
                 const latitude = parseFloat(location.latitude)
                 const longitude = parseFloat(location.longitude)
                 return (
                     <MapView.Marker
-                        key={location.id}
+                        key={key}
                         title="Greenwich"
                         onPress={e => props.displayMarkerInfo(e)}
                         coordinate={{

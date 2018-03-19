@@ -61,19 +61,20 @@ public class GeolocationModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void startBackgroundService(Promise promise) {
         String result = "Success";
-        Log.e( "Geolocation", "start service reached" );
+        Log.e( "B/Geolocation", "start service reached" );
         try {
-            Intent intent = new Intent(BackgroundGeolocationService.);
-            intent.setClass(this.getReactApplicationContext(), BackgroundGeolocationService.class);
+            Intent intent = new Intent(this.getReactApplicationContext(),BackgroundGeolocationService.class);
+            //intent.setClass(this.getReactApplicationContext(), BackgroundGeolocationService.class);
             getReactApplicationContext().startService(intent);
-            Log.e( "Geolocation", "start service called" );
+            //getReactApplicationContext().startservice(new Intent(this.getReactApplicationContext(),BackgroundGeolocationService.class));
+            Log.e( "B/Geolocation", "start service called" );
         } catch (Exception e) {
             promise.reject(e);
-            Log.e( "Geolocation", "start service rejected" );
+            Log.e( "B/Geolocation", "start service rejected" );
             return;
         }
         promise.resolve(result);
-        Log.e( "Geolocation", "start service promise resolved" );
+        Log.e( "B/Geolocation", "start service promise resolved" );
     }
 
     @ReactMethod
@@ -91,6 +92,7 @@ public class GeolocationModule extends ReactContextBaseJavaModule {
     }
 
     private void sendEvent(Location message) {
+        Log.e( "Geolocation", "latitude " + message.getLatitude() );
         WritableMap map = Arguments.createMap();
         WritableMap coordMap = Arguments.createMap();
         coordMap.putDouble("latitude", message.getLatitude());

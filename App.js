@@ -1,30 +1,38 @@
 import React, { Component } from 'react';
 import {
   Platform,
+  AppState,
   StyleSheet,
   Text,
   View,
+  Alert,
   DeviceEventEmitter,
   NativeModules,
   PermissionsAndroid
 } from 'react-native';
 
 const axios = require('axios');
-const moment = require('moment')
-import Home from './src/Home/Home'
-import PlaceDetail from './src/PlaceDetail/PlaceDetail'
-import {getPlace} from './src/utils/api'
+const moment = require('moment');
+
+import firebase from 'react-native-firebase';
+import ReactTimeout from 'react-timeout'
+import BackgroundTimer from 'react-native-background-timer';
+import * as Notification from 'react-native-notifications'
 
 import {Overlay, Button} from 'react-native-elements'
 import { NativeRouter, Route} from 'react-router-native'
-//import firebase from './src/utils/firebase'
-import firebase from 'react-native-firebase';
 
-console.log('native modules', NativeModules)
+import Home from './src/Home/Home'
+import QuestionForm from './src/QuestionsForm'
+import PlaceDetail from './src/PlaceDetail/PlaceDetail'
+import {getPlace} from './src/utils/api'
+
+const ref = firebase.database().ref('');
+
 const LocationAndSensorModule = NativeModules.LocationAndSensorModule
 const Geolocation = NativeModules.GeoLocation
 
-export default class App extends Component<{}> {
+ class App extends Component<{}> {
   constructor(){
     super()
     this.state = {
@@ -38,23 +46,33 @@ export default class App extends Component<{}> {
         longitude: '',
         latitude: '',
         timestamp: ''
-      }
+      },
+      appState: AppState.currentState,
+      displayQuestionForm: false
     }
+  }
 
-    this.displayMarkerInfo = this.displayMarkerInfo.bind(this)
-    this.getLocations = this.getLocations.bind(this)
-    this.saveLocation = this.saveLocation.bind(this)
-    this.updateCurrentLocation = this.updateCurrentLocation.bind(this)
-    this.getPlaceAndSaveLocation = this.getPlaceAndSaveLocation.bind(this)
+
+
+  _handleAppStateChange = (nextAppState) => {
+    this.setState({appState: nextAppState});
+    console.log('app state', this.state.appState)
   }
 
   componentDidMount(){
     this.getLocations()
+    AppState.addEventListener('change', this._handleAppStateChange);
   }
 
   componentWillMount(){
     this.requestLocationPermission()
     LocationAndSensorModule.startReceiver()
+    
+
+    DeviceEventEmitter.addListener('timer', (event)=> { this.displayNotification()})
+    AppState.addEventListener('change', this._handleAppStateChange);
+   
+    Notification.NotificationsAndroid.setNotificationOpenedListener(this.onNotificationOpened);
     
     //LocationAndSensorModule.getPermission()
     //set moving state to either Static
@@ -65,26 +83,21 @@ export default class App extends Component<{}> {
         .then((data)=> console.log('location started', data))
         .catch((err)=> console.log('location starting error', err))
         
-        console.log('iscurrentlocation', this.state.isCurrentLocation)
-        if(this.state.isCurrentLocation){
-          const userState = this.state.state
-          const endTime = new Date()
-          const startTime = this.state.currentLocation.timestamp
-          console.log('start', startTime)
-          console.log('end', endTime)
-          const timespent =  (endTime - startTime)/1000
-          
-          console.log('timespent', timespent)
-          this.getPlaceAndSaveLocation(timespent, this.state.currentLocation)
-          LocationAndSensorModule.show('Location Saved', LocationAndSensorModule.SHORT)
-          //if(userState === 'Still' && timespent > 500) this.getPlaceAndSaveLocation(timespent, this.state.currentLocation)
-          
-        }
-        
     })
 
     DeviceEventEmitter.addListener('updateLocation', (data)=> {
-      console.log('location', data)
+      //on receive location
+      //search places 500m close to the location
+      getPlace(data.coords)
+      .then((data)=> {
+        console.log('get location place', data.data.results)
+        const results = data.data.results
+        if(results.length > 0){
+          this.displayNotification()
+        }
+      
+      })
+      .catch((err)=> console.log('err', err))
 
   
       this.state.location1 === null
@@ -94,7 +107,8 @@ export default class App extends Component<{}> {
       if((this.state.location1 !== null) && (this.state.location2 !== null) ){
 
         LocationAndSensorModule.getDistanceBetweenLocations(
-          this.state.location1.longitude, this.state.location1.latitude, this.state.location2.longitude, this.state.location2.latitude,
+          this.state.location1.longitude, this.state.location1.latitude, 
+          this.state.location2.longitude, this.state.location2.latitude,
           (distance)=> {
             console.log('distance', distance)
 
@@ -105,9 +119,10 @@ export default class App extends Component<{}> {
                 LocationAndSensorModule.stopSamplingLocation();
                 Geolocation.stopService().then((data)=> console.log('Stop sampling location'))
                 this.updateCurrentLocation(this.state.location2)
+                console.log('iscurrentlocation', this.state.isCurrentLocation)
+                this.displayAndSaveLocation()
                 this.setState({location1: null});
                 this.setState({location2: null});
-                LocationAndSensorModule.show('Stop sampling location', LocationAndSensorModule.SHORT)
                 
               }else{
                 LocationAndSensorModule.show('User Moving Short Distance', LocationAndSensorModule.SHORT)
@@ -115,19 +130,32 @@ export default class App extends Component<{}> {
               
             }else{
 
-              // axios.post('http://165.227.103.10:3000/api/v1/locations', data).then(()=> {
-              //   console.log('saved different location');
-              //   LocationAndSensorModule.show('Different Location', LocationAndSensorModule.SHORT);
-              //   this.setState({location1: null});
-              //   this.setState({location2: null});
-              //   this.getLocations()
-              // }).catch(()=> LocationAndSensorModule.show('Error: Different Location', LocationAndSensorModule.SHORT))
             }
             //save the locations
            
             
           }
         )
+      }
+
+      if( (this.state.location1 !== null) && (this.state.location2 === null)){
+        //check the last saved distance in the db
+        //get the distance between them
+        //if it is over 200m: update the timespent of this location 
+        console.log('process time sent')
+        const locationPromise  = this.getLastLocation()
+        locationPromise.then((data)=> {
+          const l = data.val()
+          const key = Object.keys(location.val())
+          const location = l[key[0]]
+          console.log('last location', location)
+           return LocationAndSensorModule.getDistance(
+            this.state.location1.longitude, this.state.location1.latitude, location.longitude, location.latitude)
+        }).then((distance)=> {
+          console.log('my distance', distance)
+          console.log('created at', location.created)
+          console.log('timespent', new Date() - location.created)
+        })
       }
 
     })
@@ -154,6 +182,8 @@ export default class App extends Component<{}> {
         // </NativeRouter>
         <View style={styles.container}>
           <Home locations={this.state.locations} displayMarkerInfo={this.displayMarkerInfo}/>
+          <QuestionForm displayQuestionForm={this.state.displayQuestionForm}/>
+          {/* <QuestionForm displayQuestionForm={true}/> */}
           <Overlay 
             containerStyle={styles.overlay} 
             isVisible={this.state.isVisible}
@@ -175,8 +205,7 @@ export default class App extends Component<{}> {
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         {
           'title': 'Drinkmonitor Location Permission',
-          'message': 'Cool Photo App needs access to your camera ' +
-                     'so you can take awesome pictures.'
+          'message': 'Cool Photo App needs access to your camera so you can take awesome pictures.'
         }
       )
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
@@ -190,7 +219,91 @@ export default class App extends Component<{}> {
     }
   }
 
-  getLocations(){
+  displayNotification = ()=>{
+    console.log('display alert')
+    console.log('app state',this.state.appState)
+    if(this.state.appState === 'active'){
+      //this.showQuestionForm()
+      this.displayForm()
+    }else{
+      this.sendNotification()
+    }
+  }
+
+  sendNotification = () => {
+    Notification.NotificationsAndroid.localNotification({
+      title: "Local notification",
+      body: "This notification was generated by the app!",
+      extra: "data"
+    });
+  }
+
+  displayForm = () => {
+    this.setState({displayQuestionForm: true})
+  }
+
+  onNotificationReceivedBackground = (notification) => {
+    console.log("Notification Received - Background", notification);
+  }
+  
+  onNotificationOpened = (notification) => {
+    this.setState({displayQuestionForm: true})
+  }
+
+  displayAndSaveLocation = ()=> {
+    console.log('display and save location')
+    BackgroundTimer.start()
+    LocationAndSensorModule.setTimeout()
+    this.getPlaceAndSaveLocation(this.state.currentLocation)
+  }
+
+  getPlaceAndSaveLocation = (location)=> {
+    // get the name and the type of the place
+    getPlace(location)
+    .then((data)=> {
+      console.log('get place data', data)
+      const dataTobeSaved = {
+        //duration: timespent,
+        latitude: location.latitude,
+        longitude: location.longitude,
+        place: data.data.results[0].formatted_address,
+        type: data.data.results[0].types,
+        created: new Date()
+      }
+      console.log('data to be saved', dataTobeSaved)
+
+      
+      const locationId = ref.child('locations').push().key
+      console.log('locationId', locationId)
+      const locationPromise = ref.child(`locations/${locationId}`).set(dataTobeSaved)
+      locationPromise.then((data)=> {
+        const locations = this.state.locations
+      })
+      
+    })
+    .catch((err)=> console.log('error', err))
+    //save that location
+  }
+
+  getLastLocation = ()=> {
+    const lastLocationRef = ref.child(`locations`).orderByKey().limitToLast(1)
+    const lastLocation = lastLocationRef.once("value", (data)=>  data.val())
+    return lastLocation
+  }
+
+  updateCurrentLocation = (currentLocation) => {
+    this.setState({
+      currentLocation: {
+        latitude: currentLocation.latitude,
+        longitude: currentLocation.longitude,
+        timestamp: new Date()
+      },
+      isCurrentLocation: true
+    })
+    LocationAndSensorModule.show('Current location updated', LocationAndSensorModule.SHORT)
+  }
+
+  getLocations =() =>{
     const ref = firebase.database().ref('locations')
     ref.once('value', (snapshot)=> {
       console.log('snapshot', snapshot.val())
@@ -204,7 +317,7 @@ export default class App extends Component<{}> {
     // .then(({data})=> this.setState({locations: data.data}))
   }
 
-  saveLocation(location){
+  saveLocation = (location)=> {
     axios.post('http://165.227.103.10:3000/api/v1/locations', location).then(()=> {
       this.setState({location1: null});
       this.setState({location2: null});
@@ -212,44 +325,9 @@ export default class App extends Component<{}> {
     }).catch(()=> LocationAndSensorModule.show('Error: Same Location', LocationAndSensorModule.SHORT))
   }
 
-  getPlaceAndSaveLocation(timespent, location){
-    // get the name and the type of the place
-    console.log('timespent', timespent)
-    getPlace(location)
-    .then((data)=> {
-      console.log('get place data', data)
-      const dataTobeSaved = {
-        duration: timespent,
-        latitude: location.latitude,
-        longitude: location.longitude,
-        place: data.data.results[0].formatted_address,
-        type: data.data.results[0].types
-      }
-      console.log('data to be saved', dataTobeSaved)
+  
 
-      const ref = firebase.database().ref('');
-      const locationId = ref.child('locations').push().key
-      console.log('locationId', locationId)
-      const locationPromise = ref.child(`locations/${locationId}`).set(dataTobeSaved)
-      
-    })
-    .catch((err)=> console.log('error', err))
-    //save that location
-  }
-
-  updateCurrentLocation(currentLocation){
-    this.setState({
-      currentLocation: {
-        latitude: currentLocation.latitude,
-        longitude: currentLocation.longitude,
-        timestamp: new Date()
-      },
-      isCurrentLocation: true
-    })
-    LocationAndSensorModule.show('Current location updated', LocationAndSensorModule.SHORT)
-  }
-
-  displayMarkerInfo(e){
+  displayMarkerInfo =(e) => {
     console.log('location', e.nativeEvent)
     this.setState({isVisible: true})
     const client_id = 'ZZB3HQDSMD21RWQGOI4HADQHWXDJB0XUCWVPXLE5GF4UV1WP'
@@ -287,5 +365,7 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
 })
+
+export default App
 
 

@@ -41,7 +41,8 @@
 
         <service android:name=".ActivityRecognizedService" />
         <service android:name=".GeolocationService" />
-        <service android:name=".TaskService" />
+        <!--<service android:name=".TaskService" />-->
+        <service android:name=".BackgroundGeolocationService" />
 
 
         <meta-data

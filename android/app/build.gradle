@@ -78,6 +78,12 @@ project.ext.react = [
 
 apply from: "../../node_modules/react-native/react.gradle"
 
+project.ext.vectoricons = [
+        iconFontNames: [ 'MaterialIcons.ttf', 'EvilIcons.ttf' ] // Name of the font files you want to copy
+]
+
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
+
 /**
  * Set this to true to create two separate APKs instead of one:
  *   - An APK that only works on ARM devices
@@ -146,6 +152,8 @@ dependencies {
     compile "com.facebook.react:react-native:+"  // From node_modules
     compile project(':react-native-maps')
     compile project(':react-native-vector-icons')
+    compile project(':react-native-background-timer')
+    compile project(':reactnativenotifications')
     compile 'com.google.android.gms:play-services-location:11.6.0'
     compile 'com.google.code.gson:gson:2.6.2'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'

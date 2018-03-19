@@ -27,6 +27,7 @@ import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.LifecycleEventListener;
+import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -57,6 +58,7 @@ public class LocationAndSensorModule extends ReactContextBaseJavaModule implemen
   private static final String E_FAILED_TO_SHOW_PICKER = "E_FAILED_TO_SHOW_PICKER";
 
   private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
+  private static final long TIME_INTERVAL_IN_MILLISECONDS = 300000;
   private static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS =
           UPDATE_INTERVAL_IN_MILLISECONDS / 2;
 
@@ -66,6 +68,7 @@ public class LocationAndSensorModule extends ReactContextBaseJavaModule implemen
   private String mapEvent = "event";
   private String longitude = "longitude";
   private String latitude = "latitude";
+  private String timer = "timer";
   private FusedLocationProviderClient mFusedLocationClient;
   private LocationCallback mLocationCallback;
   private LocationSettingsRequest mLocationSettingsRequest;
@@ -112,6 +115,7 @@ public class LocationAndSensorModule extends ReactContextBaseJavaModule implemen
 
     mSensorManager = (SensorManager) reactContext.getSystemService(reactContext.SENSOR_SERVICE);
     mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
+    //mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
 
     mApiClient = new GoogleApiClient.Builder(getReactApplicationContext())
             .addApi(ActivityRecognition.API)
@@ -182,12 +186,12 @@ public class LocationAndSensorModule extends ReactContextBaseJavaModule implemen
       Toast.makeText(getReactApplicationContext(), "Significant motion detected",
               Toast.LENGTH_LONG).show();
 
-      ActivityRecognition.ActivityRecognitionApi
-              .requestActivityUpdates( mApiClient, 120000, pendingIntent );
-
-
+//      ActivityRecognition.ActivityRecognitionApi
+//              .requestActivityUpdates( mApiClient, 300000, pendingIntent );
     }
   };
+
+
 
   // Acquire a reference to the system Location Manager
   private LocationManager locationManager = (LocationManager) getReactApplicationContext()
@@ -221,6 +225,17 @@ public class LocationAndSensorModule extends ReactContextBaseJavaModule implemen
     getCurrentActivity().registerReceiver(networkReceiver, filter);
   }
 
+  @ReactMethod
+  private void requestActivityUpdates(){
+    ActivityRecognition.ActivityRecognitionApi
+            .requestActivityUpdates( mApiClient, 60000, pendingIntent );
+  }
+
+  @ReactMethod
+  private void stopActivityUpdates(){
+    ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mApiClient,pendingIntent);
+  }
+
 
   @ReactMethod
   private void getDistanceBetweenLocations(
@@ -238,6 +253,54 @@ public class LocationAndSensorModule extends ReactContextBaseJavaModule implemen
     float distance = locationA.distanceTo(locationB);
     callback.invoke(distance);
   }
+
+  @ReactMethod
+  private void getDistance(
+          Double longitude1, Double latitude1, Double longitude2, Double latitude2, Promise promise){
+
+    Location locationA = new Location("point A");
+    locationA.setLatitude(latitude1);
+    locationA.setLongitude(longitude1);
+
+    Location locationB = new Location("point B");
+
+    locationB.setLatitude(latitude2);
+    locationB.setLongitude(longitude2);
+
+    float distance = locationA.distanceTo(locationB);
+    promise.resolve(distance);
+  }
+
+  @ReactMethod
+  public void setTimeout(){
+    // set interval
+    TimeInterval.TaskHandle handle = TimeInterval.setTimeout(new Runnable() {
+      public void run() {
+        Log.e("timer", "Executed every 3000 ms!");
+        WritableMap params = Arguments.createMap();
+        params.putBoolean(timer, true);
+        sendEvent(getReactApplicationContext(), "timer", params);
+        //callback.invoke(true);
+      }
+    }, TIME_INTERVAL_IN_MILLISECONDS);
+    //handle.invalidate();   // cancel
+  }
+
+  @ReactMethod
+  public void setTimeoutForState(){
+    // set interval
+    TimeInterval.TaskHandle handle = TimeInterval.setTimeout(new Runnable() {
+      public void run() {
+        Log.e("timer", "Executed every 3000 ms!");
+        WritableMap params = Arguments.createMap();
+        params.putBoolean(timer, true);
+        sendEvent(getReactApplicationContext(), "timer_for_state", params);
+        //callback.invoke(true);
+      }
+    }, 60000);
+    //handle.invalidate();   // cancel
+  }
+
 
   @ReactMethod
   private void stopSamplingLocation(){

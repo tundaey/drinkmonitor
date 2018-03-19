@@ -38,6 +38,7 @@ public class GeolocationService extends Service {
 
         @Override
         public void onLocationChanged(Location location) {
+            Log.e( "Geolocation", "Location Changed");
             GeolocationService.this.sendMessage(location);
         }
 
@@ -59,13 +60,28 @@ public class GeolocationService extends Service {
     public void onCreate() {
         Log.e( "Geolocation", "Location on create");
         locationManager = getSystemService(LocationManager.class);
-        Log.e( "Geolocation", "Location on create");
+
+        // getting GPS status
+        Log.e( "Geolocation", "Location on GPS " + locationManager
+                .isProviderEnabled(LocationManager.GPS_PROVIDER));
+
+
+        // getting network status
+        Log.e( "Geolocation", "Location on Network " + locationManager
+                .isProviderEnabled(LocationManager.NETWORK_PROVIDER));
+
         int permissionCheck = ContextCompat.checkSelfPermission(this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION);
         if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
             //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60000, 100, locationListener);
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60000, 0, locationListener);
-            Log.e( "Geolocation", "request location updates");
+            try{
+                //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60000, 0, locationListener);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 300000, 0, locationListener);
+                Log.e( "Geolocation", "request location updates");
+            }catch (Exception e){
+                Log.e( "Geolocation", "Error");
+            }
+
         }
     }
 

@@ -1,7 +1,12 @@
 import { AppRegistry } from 'react-native';
 import App from './App';
+import LApp from './LApp';
 
 
-AppRegistry.registerHeadlessTask('locationUpdates', () => require('./src/utils/locationUpdates'));
+//AppRegistry.registerHeadlessTask('locationUpdates', () => require('./src/utils/locationUpdates'));
 
-AppRegistry.registerComponent('drinkmonitor', () => App);
+console.ignoredYellowBox = [
+    'Setting a timer'
+  ];
+
+AppRegistry.registerComponent('drinkmonitor', () => LApp);
