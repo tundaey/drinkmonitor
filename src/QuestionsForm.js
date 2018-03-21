@@ -42,7 +42,7 @@ class QuestionForm extends Component {
             width={0.9}
             show={this.props.displayQuestionForm}
             ref={(popupDialog) => { this.popupDialog = popupDialog; }}>
-        <View>
+        <View style={{flex: 2}}>
           <MultiStep steps={steps} onFinish={this.finish}/>
         </View>
       </PopupDialog>

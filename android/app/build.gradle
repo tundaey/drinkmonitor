@@ -79,7 +79,7 @@ project.ext.react = [
 apply from: "../../node_modules/react-native/react.gradle"
 
 project.ext.vectoricons = [
-        iconFontNames: [ 'MaterialIcons.ttf', 'EvilIcons.ttf' ] // Name of the font files you want to copy
+        iconFontNames: [ 'MaterialIcons.ttf', 'EvilIcons.ttf', 'FontAwesome' ] // Name of the font files you want to copy
 ]
 
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
@@ -154,6 +154,7 @@ dependencies {
     compile project(':react-native-vector-icons')
     compile project(':react-native-background-timer')
     compile project(':reactnativenotifications')
+    compile project(':react-native-navigation')
     compile 'com.google.android.gms:play-services-location:11.6.0'
     compile 'com.google.code.gson:gson:2.6.2'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'

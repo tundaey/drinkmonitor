@@ -54,7 +54,8 @@ const DISTANCE_THRESHOLD = 100
       },
       appState: AppState.currentState,
       updated: 0,
-      displayQuestionForm: true
+      displayQuestionForm: false,
+      placeName: 'Are you at a bar?'
     }
   }
 
@@ -255,7 +256,8 @@ const DISTANCE_THRESHOLD = 100
       console.log('get location place', data.data.results)
       const results = data.data.results
       if(results.length > 0){
-        this.displayNotification()
+          const place = results[0].name
+        this.displayNotification(place)
       }
     })
     .catch((err)=> console.log('err', err))
@@ -308,7 +310,7 @@ const DISTANCE_THRESHOLD = 100
     return (
         <View style={styles.container}>
           <Home locations={this.state.locations} displayMarkerInfo={this.displayMarkerInfo}/>
-          <QuestionForm displayQuestionForm={this.state.displayQuestionForm}/>
+          <QuestionForm placeName={this.state.placeName} displayQuestionForm={this.state.displayQuestionForm}/>
           <Overlay 
             containerStyle={styles.overlay} 
             isVisible={this.state.isVisible}
@@ -382,9 +384,9 @@ const DISTANCE_THRESHOLD = 100
     }
   }
 
-  displayNotification = ()=>{
+  displayNotification = (place)=>{
     if(this.state.appState === 'active'){
-      this.displayForm()
+      this.displayForm(place)
     }else{
       this.sendNotification()
     }
@@ -398,8 +400,8 @@ const DISTANCE_THRESHOLD = 100
     });
   }
 
-  displayForm = () => {
-    this.setState({displayQuestionForm: true})
+  displayForm = (place) => {
+    this.setState({displayQuestionForm: true, changeState: false, placeName: `Are you at ${place}`})
   }
 
   onNotificationReceivedBackground = (notification) => {
