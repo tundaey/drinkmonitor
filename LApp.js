@@ -31,7 +31,7 @@ const ref = firebase.database().ref('');
 
 const LocationAndSensorModule = NativeModules.LocationAndSensorModule
 const Geolocation = NativeModules.GeoLocation
-const DISTANCE_THRESHOLD = 100
+const DISTANCE_THRESHOLD = 250
 
  class App extends Component<{}> {
   constructor(){
@@ -143,15 +143,6 @@ const DISTANCE_THRESHOLD = 100
                 this.sampleAnotherLocation()
                 console.log('push locations', this.state.sampleLocations)
             }
-            //if its just one location in the array, get location after 5 minutes(set a time interval)
-            // if(this.state.sampleLocations.length === 1){
-            //     //get another location after 5 minutes
-            //     console.log('sample locations is 1')
-            //     this.sampleAnotherLocation()
-            // }
-
-            //if there are two elements in the array, get the distance between the two states
-           
             if(this.state.sampleLocations.length === 2){
                  //if the distance is greater than 250 setstate to M
                 //else set state to S 
@@ -257,6 +248,7 @@ const DISTANCE_THRESHOLD = 100
       const results = data.data.results
       if(results.length > 0){
           const place = results[0].name
+          //this.setState({currentLocation: location.coords, changeState: false})
         this.displayNotification(place)
       }
     })
@@ -272,7 +264,6 @@ const DISTANCE_THRESHOLD = 100
           if(distance < DISTANCE_THRESHOLD) {
               this.setState({state: 'S',changeState: true})
           }else{
-               
             this.setState({state: 'M', changeState: true})
           }
           //this.setState({sampleLocations: []})
@@ -305,12 +296,20 @@ const DISTANCE_THRESHOLD = 100
       console.log('timespent', new Date() - location.created)
     })
   }
+
+  saveAnswers = (data) => {
+    console.log('save answers', data)
+    this.setState({displayQuestionForm: false, changeState: false})
+  }
   
   render() {
     return (
         <View style={styles.container}>
           <Home locations={this.state.locations} displayMarkerInfo={this.displayMarkerInfo}/>
-          <QuestionForm placeName={this.state.placeName} displayQuestionForm={this.state.displayQuestionForm}/>
+          <QuestionForm 
+            placeName={this.state.placeName} 
+            saveAnswers={this.saveAnswers}
+            displayQuestionForm={this.state.displayQuestionForm}/>
           <Overlay 
             containerStyle={styles.overlay} 
             isVisible={this.state.isVisible}

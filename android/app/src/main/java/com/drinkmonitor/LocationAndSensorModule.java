@@ -297,7 +297,7 @@ public class LocationAndSensorModule extends ReactContextBaseJavaModule implemen
         sendEvent(getReactApplicationContext(), "timer_for_state", params);
         //callback.invoke(true);
       }
-    }, 60000);
+    }, 300000);
     //handle.invalidate();   // cancel
   }
 

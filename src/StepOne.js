@@ -11,19 +11,23 @@ import { Button, Icon,Input, CheckBox } from 'react-native-elements';
 
 export default class StepOne extends Component{
     state = {
-        checked: false,
-        answer: 'No'
+        checked: true,
+        answer: 'Yes'
     }
 
     selectAnswer = (answer)=> {
+        console.log('selected answer', answer, this.props)
         this.setState({checked: !this.state.checked, answer: answer})
+        const wizardState = []
+        wizardState.push({first_answer: this.state.answer})
+        if(answer === "No") this.props.closeDialog(wizardState)
     }
 
     nextPreprocess = ()=>{
       
         console.log('StepOne answer', this.state.answer)
         // Save step state for use in other steps of the wizard
-        this.props.saveState(0,{key:'value'})
+        this.props.saveState(0,{first_answer: this.state.answer})
        
         // Go to next step
         this.props.nextFn()

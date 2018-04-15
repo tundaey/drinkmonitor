@@ -8,6 +8,7 @@ import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
+import com.horcrux.svg.SvgPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.ocetnik.timer.BackgroundTimerPackage;
 import com.wix.reactnativenotifications.RNNotificationsPackage;
@@ -36,7 +37,8 @@ public class MainApplication extends Application implements ReactApplication {
               new RNFirebasePackage(),
               new RNFirebaseDatabasePackage(),
               new BackgroundTimerPackage(),
-              new RNNotificationsPackage(MainApplication.this)
+              new RNNotificationsPackage(MainApplication.this),
+              new SvgPackage()
       );
     }
 

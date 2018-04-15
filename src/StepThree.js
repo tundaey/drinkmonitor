@@ -16,7 +16,7 @@ export default class StepThree extends Component{
     nextPreprocess = ()=>{
       
         // Save step state for use in other steps of the wizard
-        this.props.saveState(0,{key:'value'})
+        this.props.saveState(2,{third_answer: this.state.answer})
        
         // Go to next step
         this.props.nextFn()
@@ -38,33 +38,10 @@ export default class StepThree extends Component{
               <View style={{flexDirection: 'column', justifyContent: 'space-around'}}>
                 <View style={{flex: 2, marginBottom: 10, padding: 10}}>
                     <Text h4>How many drinks did you have?</Text>
-                    <CheckBox
-                        title='0 - 3'
-                        onPress={() => this.setState({checked: !this.state.checked})}
-                        onLongPress={() => this.setState({checked: !this.state.checked})}
-                        iconType='material'
-                        checkedIcon='radio-button-checked'
-                        uncheckedIcon='radio-button-unchecked'
-                        checked={this.state.checked}
-                    />
-                    <CheckBox
-                        title='3 - 6'
-                        onPress={() => this.setState({checked: !this.state.checked})}
-                        onLongPress={() => this.setState({checked: !this.state.checked})}
-                        iconType='material'
-                        checkedIcon='radio-button-checked'
-                        uncheckedIcon='radio-button-unchecked'
-                        checked={!this.state.checked}
-                    />
-                     <CheckBox
-                        title='Over 6'
-                        onPress={() => this.setState({checked: !this.state.checked})}
-                        onLongPress={() => this.setState({checked: !this.state.checked})}
-                        iconType='material'
-                        checkedIcon='radio-button-checked'
-                        uncheckedIcon='radio-button-unchecked'
-                        checked={!this.state.checked}
-                    />
+                    <Input containerStyle={{marginTop: 40}} 
+                        onChangeText={(text)=> this.setState({answer: text})} 
+                        placeholder='Number of Drinks' 
+                        keyboardType="numeric"/>
                 </View>
                   <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
                     <Button

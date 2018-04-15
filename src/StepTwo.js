@@ -11,19 +11,26 @@ import { Button, Icon,Input, CheckBox } from 'react-native-elements';
 
 export default class StepTwo extends Component{
     state = {
-        checked: false,
-        answer: 'No'
+        checked: true,
+        answer: 'Yes'
     }
 
     selectAnswer = (answer)=> {
         this.setState({checked: !this.state.checked, answer: answer})
+        const wizardState = []
+        const second_answer = {second_answer: this.state.answer}
+        wizardState.push(this.props.getState()[0])
+        wizardState.push(second_answer)
+        if(answer === "No") this.props.closeDialog(wizardState)
     }
 
     nextPreprocess = ()=>{
       
+        
         console.log('StepTwo answer', this.state.answer)
         // Save step state for use in other steps of the wizard
-        this.props.saveState(0,{key:'value'})
+        this.props.saveState(1,{
+            second_answer: this.state.answer})
        
         // Go to next step
         this.props.nextFn()
@@ -56,8 +63,8 @@ export default class StepTwo extends Component{
                     />
                     <CheckBox
                         title='No'
-                        onPress={() => this.selectAnswer('Yes')}
-                        onLongPress={() => this.selectAnswer('Yes')}
+                        onPress={() => this.selectAnswer('No')}
+                        onLongPress={() => this.selectAnswer('No')}
                         iconType='material'
                         checkedIcon='radio-button-checked'
                         uncheckedIcon='radio-button-unchecked'

@@ -15,7 +15,7 @@ const url = 'https://api.foursquare.com/v2'
 
 export function getPlace(location){
     console.log('location', typeof location.latitude)
-    const RADIUS = 100
+    const RADIUS = 30
     const newPlaceURI = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=
     ${location.latitude},${location.longitude}&radius=${RADIUS}&type=Bars+and+pubs&keyword=Bars+and+pubs&key=${key}`
 

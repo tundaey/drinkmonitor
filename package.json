@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "axios": "^0.17.1",
+    "d3-shape": "^1.2.0",
     "moment": "^2.20.1",
     "react": "16.2.0",
     "react-native": "0.52.1",
@@ -20,6 +21,9 @@
     "react-native-navigation": "^1.1.411",
     "react-native-notifications": "^1.1.19",
     "react-native-popup-dialog": "^0.10.46",
+    "react-native-svg": "^6.3.1",
+    "react-native-svg-charts": "^4.2.0",
+    "react-native-swiper": "^1.5.13",
     "react-native-vector-icons": "^4.5.0",
     "react-navigation": "^1.5.8",
     "react-router-native": "^4.2.0",
